@@ -1,0 +1,6 @@
+Django>=4.2
+django-allauth>=0.57.0
+djangorestframework
+djangorestframework-simplejwt
+drf-yasg
+Pillow>=9.0.0

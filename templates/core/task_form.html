@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-1 text-dark fw-bold">
+                    <i class="fas fa-{% if task %}edit{% else %}plus{% endif %} me-2 text-primary"></i>
+                    {{ title }}
+                </h1>
+                <p class="text-muted mb-0">{{ description }}</p>
+            </div>
+            <div class="text-end">
+                <a href="{% if task %}{% url 'core:task_detail' task.id %}{% else %}{% url 'core:task_list' %}{% endif %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back
+                </a>
+            </div>
+        </div>
+        <hr class="my-3 border-primary">
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card task-card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-{% if task %}edit{% else %}plus{% endif %} me-2 text-primary"></i>
+                    {% if task %}Edit Task{% else %}Create New Task{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Basic Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>Basic Information
+                            </h6>
+                        </div>
+                        
+                        <!-- Title -->
+                        <div class="col-md-8 mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                {{ form.title.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.title.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Priority -->
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.priority.id_for_label }}" class="form-label">{{ form.priority.label }}</label>
+                            {{ form.priority }}
+                            {% if form.priority.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.priority.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="col-12 mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.description.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Status and Assignment -->
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }}</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.status.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.assigned_to.id_for_label }}" class="form-label">{{ form.assigned_to.label }}</label>
+                            {{ form.assigned_to }}
+                            {% if form.assigned_to.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.assigned_to.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Due Date and Time Tracking -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-calendar me-2"></i>Schedule & Time Tracking
+                            </h6>
+                        </div>
+                        
+                        <!-- Due Date -->
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.due_date.id_for_label }}" class="form-label">{{ form.due_date.label }}</label>
+                            {{ form.due_date }}
+                            {% if form.due_date.help_text %}
+                                <div class="form-text">{{ form.due_date.help_text }}</div>
+                            {% endif %}
+                            {% if form.due_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.due_date.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Tags -->
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.tags.id_for_label }}" class="form-label">{{ form.tags.label }}</label>
+                            {{ form.tags }}
+                            {% if form.tags.help_text %}
+                                <div class="form-text">{{ form.tags.help_text }}</div>
+                            {% endif %}
+                            {% if form.tags.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.tags.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Time Estimation -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-stopwatch me-2"></i>Time Estimation
+                            </h6>
+                        </div>
+                        
+                        <!-- Estimated Hours -->
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.estimated_hours.id_for_label }}" class="form-label">{{ form.estimated_hours.label }}</label>
+                            {{ form.estimated_hours }}
+                            {% if form.estimated_hours.help_text %}
+                                <div class="form-text">{{ form.estimated_hours.help_text }}</div>
+                            {% endif %}
+                            {% if form.estimated_hours.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.estimated_hours.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Actual Hours -->
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.actual_hours.id_for_label }}" class="form-label">{{ form.actual_hours.label }}</label>
+                            {{ form.actual_hours }}
+                            {% if form.actual_hours.help_text %}
+                                <div class="form-text">{{ form.actual_hours.help_text }}</div>
+                            {% endif %}
+                            {% if form.actual_hours.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.actual_hours.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="row">
+                        <div class="col-12">
+                            <hr class="my-4">
+                            <div class="d-flex justify-content-between">
+                                <a href="{% if task %}{% url 'core:task_detail' task.id %}{% else %}{% url 'core:task_list' %}{% endif %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    {% if task %}Update Task{% else %}Create Task{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Help Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <a class="btn btn-outline-primary btn-sm collapsed" data-bs-toggle="collapse" href="#helpCollapse" role="button" aria-expanded="false">
+                    <i class="fas fa-question-circle me-2"></i>Need Help?
+                </a>
+            </div>
+            <div class="collapse" id="helpCollapse">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-lightbulb me-2"></i>Quick Tips
+                            </h6>
+                            <ul class="small">
+                                <li>Use descriptive titles that clearly explain what needs to be done</li>
+                                <li>Add tags to make tasks easier to find and organize</li>
+                                <li>Set realistic due dates to avoid overdue tasks</li>
+                                <li>Estimate time to better plan your workload</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-star me-2"></i>Priority Guide
+                            </h6>
+                            <ul class="small">
+                                <li><span class="badge bg-success me-1">Low</span> Can be done later</li>
+                                <li><span class="badge bg-warning me-1">Medium</span> Normal priority</li>
+                                <li><span class="badge bg-warning me-1">High</span> Important task</li>
+                                <li><span class="badge bg-danger me-1">Urgent</span> Needs immediate attention</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('.needs-validation');
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+    
+    // Auto-set due date to tomorrow if empty
+    const dueDateInput = document.querySelector('input[name="due_date"]');
+    if (dueDateInput && !dueDateInput.value) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(9, 0); // Set to 9 AM
+        dueDateInput.value = tomorrow.toISOString().slice(0, 16);
+    }
+    
+    // Tags autocomplete suggestions
+    const tagsInput = document.querySelector('input[name="tags"]');
+    if (tagsInput) {
+        const commonTags = [
+            'frontend', 'backend', 'bug', 'feature', 'urgent', 'testing',
+            'documentation', 'review', 'design', 'meeting', 'research'
+        ];
+        
+        tagsInput.addEventListener('input', function() {
+            const value = this.value.toLowerCase();
+            const suggestions = commonTags.filter(tag => 
+                tag.toLowerCase().includes(value) && 
+                !this.value.split(',').map(t => t.trim()).includes(tag)
+            );
+            
+            // Remove existing suggestions
+            const existingSuggestions = document.querySelector('.tag-suggestions');
+            if (existingSuggestions) {
+                existingSuggestions.remove();
+            }
+            
+            // Add new suggestions
+            if (suggestions.length > 0 && value.length > 0) {
+                const suggestionDiv = document.createElement('div');
+                suggestionDiv.className = 'tag-suggestions mt-1';
+                suggestionDiv.innerHTML = suggestions.map(tag => 
+                    `<span class="badge bg-light text-dark border me-1 clickable-tag" data-tag="${tag}" style="cursor: pointer;">${tag}</span>`
+                ).join('');
+                
+                tagsInput.parentNode.appendChild(suggestionDiv);
+                
+                // Add click handlers
+                suggestionDiv.querySelectorAll('.clickable-tag').forEach(tag => {
+                    tag.addEventListener('click', function() {
+                        const currentValue = tagsInput.value;
+                        const newTag = this.dataset.tag;
+                        
+                        if (currentValue.trim().length === 0) {
+                            tagsInput.value = newTag;
+                        } else {
+                            tagsInput.value = currentValue + ', ' + newTag;
+                        }
+                        
+                        tagsInput.focus();
+                        suggestionDiv.remove();
+                    });
+                });
+            }
+        });
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!tagsInput.contains(e.target) && !document.querySelector('.tag-suggestions')?.contains(e.target)) {
+                const suggestions = document.querySelector('.tag-suggestions');
+                if (suggestions) {
+                    suggestions.remove();
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
