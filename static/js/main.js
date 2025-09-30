@@ -69,9 +69,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, observerOptions);
     
-    document.querySelectorAll('.card:not(.fade-in)').forEach(function(card) {
-        observer.observe(card);
-    });
+    // Safely observe cards with fade-in animation
+    const cards = document.querySelectorAll('.card');
+    if (cards.length > 0) {
+        cards.forEach(function(card) {
+            if (!card.classList.contains('fade-in')) {
+                observer.observe(card);
+            }
+        });
+    }
     
     // Search enhancement
     const searchInputs = document.querySelectorAll('input[type="search"], input[name="search"]');
@@ -215,10 +221,9 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.setItem('shortcuts-shown', 'true');
         
         // Remove toast element after dismissal
-        document.querySelector('.toast').executeEventListeners('hidden.bs.toast');
-        setTimeout(() => {
+        document.querySelector('.toast').addEventListener('hidden.bs.toast', function() {
             shortcutsInfo.remove();
-        }, 6000);
+        });
     }
     
 });
