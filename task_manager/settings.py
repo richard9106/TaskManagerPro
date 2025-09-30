@@ -1,12 +1,16 @@
-"""Minimal settings for task_manager (for development only)"""
+"""Settings for task_manager - Environment variables managed via env.py"""
 from pathlib import Path
 import os
 
+# Import environment variables
+import env
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'replace-me'
-DEBUG = True
-ALLOWED_HOSTS = []
+# 🔐 SECURITY SETTINGS
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+DEBUG = os.environ.get('DJANGO_DEBUG', 'false').lower() == 'true'
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if os.environ.get('DJANGO_ALLOWED_HOSTS') else []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -60,10 +64,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'task_manager.wsgi.application'
 ASGI_APPLICATION = 'task_manager.asgi.application'
 
+# 🗄️ DATABASE CONFIGURATION
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.environ.get('DJANGO_DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.environ.get('DJANGO_DB_NAME', BASE_DIR / 'db.sqlite3'),
+        'USER': os.environ.get('DJANGO_DB_USER', ''),
+        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', ''),
+        'HOST': os.environ.get('DJANGO_DB_HOST', ''),
+        'PORT': os.environ.get('DJANGO_DB_PORT', ''),
     }
 }
 
@@ -73,28 +82,34 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-STATIC_URL = '/static/'
+# 📁 STATIC & MEDIA FILES
+STATIC_URL = os.environ.get('DJANGO_STATIC_URL', '/static/')
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files for user uploads
-MEDIA_URL = '/media/'
+MEDIA_URL = os.environ.get('DJANGO_MEDIA_URL', '/media/')
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Django Sites Framework
-SITE_ID = 1
+# 🌐 SITE CONFIGURATION
+SITE_ID = int(os.environ.get('DJANGO_SITE_ID', '1'))
 
 # Custom settings
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-# Email backend for development (optional)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# 📧 EMAIL CONFIGURATION
+EMAIL_BACKEND = os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.environ.get('DJANGO_EMAIL_HOST', '')
+EMAIL_PORT = int(os.environ.get('DJANGO_EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.environ.get('DJANGO_EMAIL_USE_TLS', 'true').lower() == 'true'
+EMAIL_HOST_USER = os.environ.get('DJANGO_EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('DJANGO_EMAIL_HOST_PASSWORD', '')
 
 # Django Allauth Configuration
 AUTHENTICATION_BACKENDS = [
@@ -102,11 +117,10 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# Modern allauth settings
+# 🔑 ALLAUTH CONFIGURATION
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'optional'  # Changed to optional for development
+ACCOUNT_EMAIL_VERIFICATION = os.environ.get('DJANGO_ACCOUNT_EMAIL_VERIFICATION', 'optional')
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_SESSION_REMEMBER = True
@@ -118,12 +132,61 @@ ACCOUNT_FORMS = {
     'login': 'core.auth_forms.CustomLoginForm',
 }
 
-# Email settings
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+# 🔒 SECURITY SETTINGS
+SECURE_SSL_REDIRECT = os.environ.get('DJANGO_SECURE_SSL_REDIRECT', 'false').lower() == 'true'
+SESSION_COOKIE_SECURE = os.environ.get('DJANGO_SESSION_COOKIE_SECURE', 'false').lower() == 'true'
+CSRF_COOKIE_SECURE = os.environ.get('DJANGO_CSRF_COOKIE_SECURE', 'false').lower() == 'true'
+SECURE_HSTS_SECONDS = int(os.environ.get('DJANGO_SECURE_HSTS_SECONDS', '0'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS', 'false').lower() == 'true'
+SECURE_HSTS_PRELOAD = os.environ.get('DJANGO_SECURE_HSTS_PRELOAD', 'false').lower() == 'true'
+
+# 🚀 CACHING CONFIGURATION
+CACHES = {
+    'default': {
+        'BACKEND': os.environ.get('DJANGO_CACHE_BACKEND', 'django.core.cache.backends.locmem.LocMemCache'),
+        'LOCATION': os.environ.get('DJANGO_CACHE_LOCATION', 'unique-snowflake'),
+    }
+}
+
+# 📊 LOGGING CONFIGURATION
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
+            'class': 'logging.FileHandler',
+            'filename': os.environ.get('DJANGO_LOG_FILE', 'logs/django.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}
 
 # Media files
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'

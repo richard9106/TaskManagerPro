@@ -6,6 +6,7 @@
 __pycache__/
 db.sqlite3
 media
+staticfiles/
 
 # Virtual env
 venv/
@@ -18,3 +19,29 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Environment files (sensitive data)
+env.py
+.env
+.env.local
+.env.production
+
+# Logs directory
+logs/
+
+# Database files
+*.db
+*.sqlite3
+
+# Cache
+.cache/
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# Backup files
+*.bak
+*.backup

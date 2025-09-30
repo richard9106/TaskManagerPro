@@ -172,7 +172,7 @@ def task_edit(request, task_id):
     task = get_object_or_404(Task, id=task_id)
     
     # Check if user has permission to edit this task
-    if not (request.user == task.created_by or request.user.is_superuser):
+    if not (request.user == task.created_by or request.user == task.assigned_to or request.user.profile.can_manage_tasks()):
         messages.error(request, 'You do not have permission to edit this task.')
         return redirect('core:task_detail', task_id=task.id)
     
