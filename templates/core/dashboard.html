@@ -135,7 +135,7 @@
                         {% for task in high_priority_tasks %}
                         <div class="border-start border-danger border-3 ps-3 mb-3">
                             <h6 class="mb-1">
-                                <a href="{% url 'core:tasks_detail' task.id %}" class="text-decoration-none text-dark">
+                                <a href="{% url 'core:task_detail' task.id %}" class="text-decoration-none text-dark">
                                     {{ task.title }}
                                 </a>
                             </h6>

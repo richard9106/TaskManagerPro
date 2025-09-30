@@ -65,16 +65,38 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 ASGI_APPLICATION = 'task_manager.asgi.application'
 
 # 🗄️ DATABASE CONFIGURATION
-DATABASES = {
-    'default': {
-        'ENGINE': os.environ.get('DJANGO_DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.environ.get('DJANGO_DB_NAME', BASE_DIR / 'db.sqlite3'),
-        'USER': os.environ.get('DJANGO_DB_USER', ''),
-        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', ''),
-        'HOST': os.environ.get('DJANGO_DB_HOST', ''),
-        'PORT': os.environ.get('DJANGO_DB_PORT', ''),
+# Seleccionar base de datos según el entorno (DEBUG)
+if DEBUG:
+    # 🧪 DESARROLLO - SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    # 🚀 PRODUCCIÓN - Neon PostgreSQL
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DJANGO_DB_NAME', 'neondb'),
+            'USER': os.environ.get('DJANGO_DB_USER', 'neondb_owner'),
+            'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', 'npg_hbRu1ioJxev7'),
+            'HOST': os.environ.get('DJANGO_DB_HOST', 'ep-lucky-smoke-a9c4bhho-pooler.gwc.azure.neon.tech'),
+            'PORT': os.environ.get('DJANGO_DB_PORT', '5432'),
+        }
+    }
+    
+    # Configurar opciones SSL para Neon PostgreSQL
+    db_options = os.environ.get('DJANGO_DB_OPTIONS', 'sslmode=require&channel_binding=require')
+    if db_options:
+        # Parsear opciones de conexión
+        options_dict = {}
+        for option in db_options.split('&'):
+            if '=' in option:
+                key, value = option.split('=', 1)
+                options_dict[key] = value
+        DATABASES['default']['OPTIONS'] = options_dict
 
 AUTH_PASSWORD_VALIDATORS = []
 
