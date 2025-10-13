@@ -168,44 +168,80 @@ CACHES = {
 }
 
 # 📊 LOGGING CONFIGURATION
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
+# En local (DEBUG=True) escribimos a archivo y consola; en producción solo consola
+if DEBUG:
+    # Asegurar carpeta de logs en local
+    try:
+        os.makedirs(BASE_DIR / 'logs', exist_ok=True)
+    except Exception:
+        pass
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+                'style': '{',
+            },
+            'simple': {
+                'format': '{levelname} {message}',
+                'style': '{',
+            },
         },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
+        'handlers': {
+            'file': {
+                'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
+                'class': 'logging.FileHandler',
+                'filename': os.environ.get('DJANGO_LOG_FILE', 'logs/django.log'),
+                'formatter': 'verbose',
+            },
+            'console': {
+                'level': 'INFO',
+                'class': 'logging.StreamHandler',
+                'formatter': 'simple',
+            },
         },
-    },
-    'handlers': {
-        'file': {
-            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
-            'class': 'logging.FileHandler',
-            'filename': os.environ.get('DJANGO_LOG_FILE', 'logs/django.log'),
-            'formatter': 'verbose',
-        },
-        'console': {
+        'root': {
+            'handlers': ['console'],
             'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
         },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file', 'console'],
-            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
-            'propagate': False,
+        'loggers': {
+            'django': {
+                'handlers': ['file', 'console'],
+                'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
+                'propagate': False,
+            },
         },
-    },
-}
+    }
+else:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'simple': {
+                'format': '{levelname} {message}',
+                'style': '{',
+            },
+        },
+        'handlers': {
+            'console': {
+                'level': 'INFO',
+                'class': 'logging.StreamHandler',
+                'formatter': 'simple',
+            },
+        },
+        'root': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
+                'propagate': False,
+            },
+        },
+    }
 
 # Media files
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
