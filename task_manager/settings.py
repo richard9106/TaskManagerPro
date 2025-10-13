@@ -1,6 +1,7 @@
 """Settings for task_manager - Environment variables managed via env.py"""
 from pathlib import Path
 import os
+import dj_database_url
 
 # Import environment variables
 import env
@@ -77,14 +78,7 @@ if DEBUG:
 else:
     # 🚀 PRODUCCIÓN - Neon PostgreSQL
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DJANGO_DB_NAME', ''),
-            'USER': os.environ.get('DJANGO_DB_USER', ''),
-            'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', ''),
-            'HOST': os.environ.get('DJANGO_DB_HOST', ''),
-            'PORT': os.environ.get('DJANGO_DB_PORT', '5432'),
-        }
+        'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
     }
     
     # Configurar opciones SSL para Neon PostgreSQL
