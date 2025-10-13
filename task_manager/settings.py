@@ -3,8 +3,13 @@ from pathlib import Path
 import os
 import dj_database_url
 
-# Import environment variables
-import env
+# Load local environment defaults
+try:
+    import env  # type: ignore  # noqa: F401
+except Exception:
+    # It's fine if env.py is not present in some environments
+    pass
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -66,9 +71,8 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 ASGI_APPLICATION = 'task_manager.asgi.application'
 
 # 🗄️ DATABASE CONFIGURATION
-# Seleccionar base de datos según el entorno (DEBUG)
+# Local/dev (DEBUG=True): always SQLite. Production (DEBUG=False): use DATABASE_URL
 if DEBUG:
-    # 🧪 DESARROLLO - SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -76,15 +80,14 @@ if DEBUG:
         }
     }
 else:
-    # 🚀 PRODUCCIÓN - Neon PostgreSQL
+    database_url = os.environ.get("DATABASE_URL", "").strip()
+    if not database_url:
+        raise RuntimeError("DATABASE_URL must be set in production (DEBUG=False)")
     DATABASES = {
-        'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+        'default': dj_database_url.parse(database_url)
     }
-    
-    # Configurar opciones SSL para Neon PostgreSQL
     db_options = os.environ.get('DJANGO_DB_OPTIONS', 'sslmode=require&channel_binding=require')
     if db_options:
-        # Parsear opciones de conexión
         options_dict = {}
         for option in db_options.split('&'):
             if '=' in option:
